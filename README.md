@@ -133,8 +133,145 @@ The next step is to format disks as xfs not as ext4
 so we are going to run the below commands one after each other
 
 sudo mkfs -t xfs /dev/webdata-vg/lv-apps
+
 sudo mkfs -t xfs /dev/webdata-vg/lv-logs
+
 sudo mkfs -t xfs /dec/webadat-vg/lv-opt
 
 <img width="1440" alt="Screenshot 2023-02-09 at 06 12 49" src="https://user-images.githubusercontent.com/118350020/217987767-49d998f1-75cc-4c34-8bb4-241981b9e80c.png">
+
+so next step is to create a mount point for lv-opt lv-apps, and lv-logs
+so i will use the below commands for that
+
+sudo mkdir /mnt/apps
+sudo mkdir /mnt/logs
+sudo mkdir /mnt/opt
+
+as shown shown in the diagram below
+
+<img width="779" alt="Screenshot 2023-02-09 at 06 21 41" src="https://user-images.githubusercontent.com/118350020/218323212-9a19b02c-1a5d-40fa-959b-125c0fff82d7.png">
+
+so the next step is to mount the point
+i will run the command below
+
+sudo mount /dev/webdata-vg/lv-apps /mnt/apps
+sudo mount /dev/webdata-vg/lv-logs /mnt/logs
+sudo mount /dev/webdata-vg/lv-opt /mnt/opt
+
+as shown in diagram below
+
+<img width="779" alt="Screenshot 2023-02-09 at 06 34 02" src="https://user-images.githubusercontent.com/118350020/218323605-ffcb6b35-55a2-4a11-b980-19b5a1ca34a9.png">
+
+The next step is to Install NFS server, and configure it to start on reboot and make sure it is up and running
+
+first is to update our server by running this command
+sudo yum -y update
+
+why the update is going on the NFS ,lets try and connect of DB server and install mysql server on it
+So am going to run this command now to install mysql on my DB Server
+sudo apt install mysql-server -y 
+but we need to first run an update on the DB server first,using this command
+sudo apt update -y
+
+as shown in the diagram below
+
+<img width="766" alt="Screenshot 2023-02-13 at 02 41 22" src="https://user-images.githubusercontent.com/118350020/218352204-edb1f977-0858-4f9d-9047-0a15ae5bb419.png">
+
+now let us install mysql server now
+sudo apt install mysql-server -y 
+as shown in the below diagram
+
+<img width="763" alt="Screenshot 2023-02-13 at 02 47 53" src="https://user-images.githubusercontent.com/118350020/218352935-1e2d6624-64af-4e14-8ead-ec2cc00c57fc.png">
+
+now let us run this command in the DB server
+sudo mysql
+
+<img width="766" alt="Screenshot 2023-02-13 at 03 30 24" src="https://user-images.githubusercontent.com/118350020/218357318-6412e5f6-0cd5-4015-82bb-34d757559175.png">
+
+now we are going to Create a database and name it tooling and 
+Create a database user and name it webaccess
+as shown in the below diagram from our DB Server
+
+<img width="761" alt="Screenshot 2023-02-13 at 04 01 27" src="https://user-images.githubusercontent.com/118350020/218360941-c6323cd0-aa39-4857-9df4-78203e34ded4.png">
+
+so now let us go back to our NFS snd let us run the command below
+sudo yum install nfs-utils -y as show in the diagram below
+
+<img width="763" alt="Screenshot 2023-02-13 at 04 06 27" src="https://user-images.githubusercontent.com/118350020/218361523-5f37a023-9a56-4733-99e4-a7c03e6f7d21.png">
+
+so we are going to start the nfs server, enable it and also check the status by running the below commands
+sudo systemctl start nfs-server.service
+
+sudo systemctl enable nfs-server.service
+
+sudo systemctl status nfs-server.service
+
+
+
+As shown in the below diagram, its active
+<img width="764" alt="Screenshot 2023-02-13 at 04 15 04" src="https://user-images.githubusercontent.com/118350020/218362513-63664325-208a-433f-b859-af510efaca5a.png">
+
+So let us set up permission that will allow our Web servers to read, write and execute files on NFS
+we are going to run all this commands below, one after another
+sudo chown -R nobody: /mnt/apps
+sudo chown -R nobody: /mnt/logs
+sudo chown -R nobody: /mnt/opt
+
+sudo chmod -R 777 /mnt/apps
+sudo chmod -R 777 /mnt/logs
+sudo chmod -R 777 /mnt/opt
+
+sudo systemctl restart nfs-server.service
+
+as shown in the below diagram
+
+<img width="757" alt="Screenshot 2023-02-13 at 04 24 01" src="https://user-images.githubusercontent.com/118350020/218363460-87eb79c1-a103-44e8-a890-8c9da63ccc34.png">
+
+now lets us look at it status
+sudo systemctl status nfs-server.service
+
+
+
+<img width="765" alt="Screenshot 2023-02-13 at 04 27 35" src="https://user-images.githubusercontent.com/118350020/218363868-f519540e-fade-46ef-9138-1906fd92fbb1.png">
+as shown in the above diagram, its still active
+
+
+so now, let us Configure access to NFS for clients within the same subnet (example of Subnet CIDR – 172.31.32.0/20 ):
+so we are to run this command below
+sudo vi /etc/exports
+
+as shown in the below diagram
+
+<img width="762" alt="Screenshot 2023-02-13 at 04 36 12" src="https://user-images.githubusercontent.com/118350020/218364881-b7d7ef0f-bd43-4ead-87c2-6c5bb12439c0.png">
+
+
+/mnt/apps 172.31.0.0/20(rw,sync,no_all_squash,no_root_squash)
+/mnt/logs 172.31.0.0/20(rw,sync,no_all_squash,no_root_squash)
+/mnt/opt 172.31.0.0/20(rw,sync,no_all_squash,no_root_squash)
+
+so we are going to paste all this inside as shown in the below diagram
+
+<img width="762" alt="Screenshot 2023-02-13 at 04 43 36" src="https://user-images.githubusercontent.com/118350020/218365799-10cf2638-36d7-40d7-92b5-d06887773578.png">
+
+ so now let us run the below command
+ sudo exportfs -arv
+ 
+ <img width="761" alt="Screenshot 2023-02-13 at 04 47 29" src="https://user-images.githubusercontent.com/118350020/218366055-148b4f73-2f1b-49e3-a5a4-9ce6981cea66.png">
+
+
+as shown above, it as exported
+
+so now, let us Check which port is used by NFS and open it using Security Groups (add new Inbound Rule)
+let us run the command below
+
+rpcinfo -p | grep nfs
+
+<img width="761" alt="Screenshot 2023-02-13 at 04 51 22" src="https://user-images.githubusercontent.com/118350020/218366528-a882b5da-2f23-47bc-a8e8-21af07cc1253.png">
+
+Important note: In order for NFS server to be accessible from your client, you must also open following ports: TCP 111, UDP 111, UDP 2049
+as shown in the below diagram
+
+<img width="853" alt="Screenshot 2023-02-13 at 04 54 21" src="https://user-images.githubusercontent.com/118350020/218366830-0ee2ec06-0305-4d60-9a8d-ec3ecf9abfdb.png">
+ <img width="1328" alt="Screenshot 2023-02-13 at 05 07 35" src="https://user-images.githubusercontent.com/118350020/218368298-c5d13bb6-ffce-41ec-857f-b74bc91e58f1.png">
+
 
