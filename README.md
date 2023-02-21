@@ -274,4 +274,188 @@ as shown in the below diagram
 <img width="853" alt="Screenshot 2023-02-13 at 04 54 21" src="https://user-images.githubusercontent.com/118350020/218366830-0ee2ec06-0305-4d60-9a8d-ec3ecf9abfdb.png">
  <img width="1328" alt="Screenshot 2023-02-13 at 05 07 35" src="https://user-images.githubusercontent.com/118350020/218368298-c5d13bb6-ffce-41ec-857f-b74bc91e58f1.png">
 
+The next step is to go and configure our webserver
+
+We need to make sure that our Web Servers can serve the same content from shared storage solutions, 
+in our case – NFS Server and MySQL database.
+
+So now let uus connect to our webserver1 as shown in the below diagram
+
+<img width="907" alt="Screenshot 2023-02-21 at 17 47 31" src="https://user-images.githubusercontent.com/118350020/220408117-587c33e0-44fe-4a96-8a6f-db3e508c8eb8.png">
+
+we already know that one DB can be accessed for reads and writes by multiple clients. For storing shared files that our Web Servers will use – we will utilize NFS and mount previously created Logical Volume lv-apps to the folder where Apache stores files to be served to the users (/var/www).
+
+This approach will make our Web Servers stateless, which means we will be able to add new ones or remove them whenever we need, and the integrity of the data (in the database and on NFS) will be preserved.
+
+During the next steps we will do following:
+
+Configure NFS client (this step must be done on all three servers
+Deploy a Tooling application to our Web Servers into a shared NFS folder
+Configure the Web Servers to work with a single MySQL database
+
+Launch a new EC2 instance with RHEL 8 Operating System which is our webserver 1
+
+so we are going to
+
+Install NFS client on it, using the below command
+
+1: sudo yum install nfs-utils nfs4-acl-tools -y as shown in the below diagram
+
+
+<img width="912" alt="Screenshot 2023-02-21 at 20 13 13" src="https://user-images.githubusercontent.com/118350020/220437736-bcbb680d-f9c0-4619-ab0f-6953bc119333.png">
+
+so now we are going to Mount /var/www/ and target the NFS server’s export for apps
+using the below command
+
+2: sudo mkdir /var/www
+3: sudo mount -t nfs -o rw,nosuid 172.31.14.17:/mnt/apps /var/www
+
+
+<img width="914" alt="Screenshot 2023-02-21 at 20 21 18" src="https://user-images.githubusercontent.com/118350020/220439030-07d3e777-a281-4194-bfcc-28a6459447b3.png">
+
+as we can see from the diagram above, there is no error, so it runs smoothly,
+so now let us run this command below
+
+ df -h 
+
+<img width="911" alt="Screenshot 2023-02-21 at 20 24 19" src="https://user-images.githubusercontent.com/118350020/220439594-db2352d4-1e38-414a-ba49-b43731ef63e1.png">
+
+as you can see from the diagram above, the highlited part is our NFS server
+
+let us create a folder on it here and see, if it will show on our NFS server
+am going to run this command now
+
+ sudo touch /var/www//test.md
+
+<img width="906" alt="Screenshot 2023-02-21 at 20 32 15" src="https://user-images.githubusercontent.com/118350020/220441130-321aec88-bf02-4bb5-aa28-ec011ba208da.png">
+
+as you can see from above diagram, the folder as being created, now let us check our NFS server to confirmed that
+i will ruun this command on it now.
+ls /mnt/apps
+
+<img width="910" alt="Screenshot 2023-02-21 at 20 35 39" src="https://user-images.githubusercontent.com/118350020/220441766-1d6dec34-5b9d-4986-a2a4-8ebd36012493.png">
+
+as you can see from the above diagram, it works perfectly.
+
+next now is to Make sure that the changes will persist on Web Server after reboot:
+so we are going to run the below command on our webserver1 right now
+
+4: sudo vi /etc/fstab and 
+add the following line below inside it.
+
+172.31.14.17:/mnt/apps /var/www nfs defaults 0 0
+ 
+ as shown in the below diagram
+ 
+ <img width="907" alt="Screenshot 2023-02-21 at 20 43 39" src="https://user-images.githubusercontent.com/118350020/220443226-9799d40c-0290-40f4-865f-44ee3ad53975.png">
+
+<img width="906" alt="Screenshot 2023-02-21 at 20 47 58" src="https://user-images.githubusercontent.com/118350020/220444004-00bd4073-7b9e-4d4b-bcc3-9bd97b506299.png">
+
+the next thing to do now is to
+
+5: Install Remi’s repository, Apache and PHP by running the below command one after each other
+
+sudo yum install httpd -y
+
+sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+sudo dnf install dnf-utils http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+
+sudo dnf module reset php
+
+sudo dnf module enable php:remi-7.4
+
+sudo dnf install php php-opcache php-gd php-curl php-mysqlnd
+
+sudo systemctl start php-fpm
+
+sudo systemctl enable php-fpm
+
+sudo setsebool -P httpd_execmem 1
+
+as shown in the below diagrams
+
+<img width="903" alt="Screenshot 2023-02-21 at 21 18 39" src="https://user-images.githubusercontent.com/118350020/220449851-8ebd7b8f-082e-401b-82c5-f290a1ba038e.png">
+
+<img width="913" alt="Screenshot 2023-02-21 at 21 21 56" src="https://user-images.githubusercontent.com/118350020/220450340-ae9b479f-4996-4cbd-84be-50b8ebd9fe87.png">
+
+<img width="909" alt="Screenshot 2023-02-21 at 21 24 32" src="https://user-images.githubusercontent.com/118350020/220450743-2e5b9030-8c2d-49ca-a0a9-636669a39093.png">
+
+<img width="914" alt="Screenshot 2023-02-21 at 21 26 18" src="https://user-images.githubusercontent.com/118350020/220450927-b05fb946-89ad-406e-874f-41dc32836167.png">
+
+<img width="914" alt="Screenshot 2023-02-21 at 21 26 18" src="https://user-images.githubusercontent.com/118350020/220451097-d7e57068-33e4-4151-83d1-c0a99775d0f6.png">
+
+<img width="916" alt="Screenshot 2023-02-21 at 21 28 16" src="https://user-images.githubusercontent.com/118350020/220451307-74f71ac7-ecea-414c-aba2-bdb5d07398e5.png">
+
+<img width="910" alt="Screenshot 2023-02-21 at 21 30 04" src="https://user-images.githubusercontent.com/118350020/220451629-46d73fdc-7f44-44fc-b59f-0de2334a2af4.png">
+
+So we are going to Repeat steps 1-5 for another 2 Web Servers.
+After that is done.
+
+we are now going to Verify that Apache files and directories are available on the Web Server in /var/www and also on the NFS server in /mnt/apps. 
+If you see the same files – it means NFS is mounted correctly. 
+You can try to create a new file touch test.md
+
+from one server and check if the same file is accessible from other Web Servers.
+
+now let  us run this command below
+ls /var/www
+
+As you can see from the diagram above, cgi bin html was created while installing the apache
+
+we can as well confirmed that in our NFS server by running this command below
+ls /mnt/apps
+
+<img width="907" alt="Screenshot 2023-02-21 at 22 38 57" src="https://user-images.githubusercontent.com/118350020/220464716-0dbb28ad-f55e-41a6-9433-e64226d01b33.png">
+
+as we can see from the above diagram, cgi bin was also created inside NFS server as well
+
+so now, we  are going to Locate the log folder for Apache on the Web Server and mount it to NFS server’s export for logs.
+And Repeat step 4 to make sure the mount point will persist after reboot
+
+Now let us go back to our webserver1 to 3 and run the command below
+ls /var/log
+
+
+<img width="912" alt="Screenshot 2023-02-21 at 22 47 49" src="https://user-images.githubusercontent.com/118350020/220466674-6ac69467-7fc0-4e11-ab13-9f45bce75581.png">
+<img width="909" alt="Screenshot 2023-02-21 at 23 19 37" src="https://user-images.githubusercontent.com/118350020/220471622-231298ec-3ce5-47ee-9348-b0e2c36d7633.png">
+
+as you can see, there is nothing in that log folder, so now am going to run this command below but this time around is going to log not apps
+
+sudo mount -t nfs -o rw,nosuid 172.31.14.17:/mnt/logs /var/log//httpd
+
+As shown in the below diagram
+
+<img width="909" alt="Screenshot 2023-02-21 at 23 27 03" src="https://user-images.githubusercontent.com/118350020/220473046-d38e2854-48ac-4ccb-b97e-a5d0a0b2bc85.png">
+
+so now am going to run the below command all the 3 webserver
+sudo vi /etc/fstab and input this  content inside 172.31.14.17:/mnt/logs /var/log//httpd nfs defaults 0 0
+as shown in the below diagram
+
+<img width="911" alt="Screenshot 2023-02-21 at 23 34 49" src="https://user-images.githubusercontent.com/118350020/220474408-835991bb-ae06-4917-9099-dc31ff2d0e40.png">
+
+<img width="906" alt="Screenshot 2023-02-21 at 23 35 31" src="https://user-images.githubusercontent.com/118350020/220474460-24ea350a-01e1-434e-b5dc-04525854c4d1.png">
+
+
+So now, let us Fork the tooling source code from Darey.io Github Account to your Github account.
+
+but firslty we need to install git on our 3 webserver by running this command below
+sudo yum install git -y
+as you can see from the below diagram
+
+<img width="906" alt="Screenshot 2023-02-22 at 00 01 04" src="https://user-images.githubusercontent.com/118350020/220478474-1d4f7a17-e07f-4d03-b38a-cb2325664704.png">
+<img width="915" alt="Screenshot 2023-02-22 at 00 01 54" src="https://user-images.githubusercontent.com/118350020/220478531-65f58962-f1db-41a0-9d75-82b1badbee97.png">
+
+next is to run this command below on all the 3 webserver
+git init 
+As shown in the diagram below
+
+<img width="907" alt="Screenshot 2023-02-22 at 00 10 44" src="https://user-images.githubusercontent.com/118350020/220479996-659d4e7e-76ee-4078-8928-8ab1b4d2ec84.png">
+
+so now we are going to run the below command on all the 3 webserver
+git clone https://github.com/darey-io/tooling.git
+
+as shown in the below diagram
+
+<img width="911" alt="Screenshot 2023-02-22 at 00 16 04" src="https://user-images.githubusercontent.com/118350020/220480451-693bd31a-c31f-4bb3-ad46-4e39ff2af32a.png">
 
