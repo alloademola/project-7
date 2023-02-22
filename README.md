@@ -539,6 +539,32 @@ so we are running this command below
 
 sudo vi /var/www/html/functions.php  as shown in the below diagram
 
+<img width="915" alt="Screenshot 2023-02-22 at 02 25 47" src="https://user-images.githubusercontent.com/118350020/220497031-29ce02cb-5807-4db4-87b9-4a33440e4fd0.png">
+ 
+ so the highlighted part will be edited by inputting the below content
+ 
+ ('172.31.15.65', 'webaccess', 'allo', 'tooling');
+ 
+ as shown in the below diagram
+ 
+ <img width="908" alt="Screenshot 2023-02-22 at 02 28 38" src="https://user-images.githubusercontent.com/118350020/220497362-ed719c41-cde5-439b-8bc0-d64e6ead7f5e.png">
+
+so now, we are going to Apply tooling-db.sql script.
+but first, we need to install mysql on all the 3 webserver by running the below command
+you need to change your directory to tooling, using the below command
+
+cd tooling/ so now, you can install your mysql
+
+sudo yum install mysql -y 
+
+as shown in the below diagram
+
+<img width="911" alt="Screenshot 2023-02-22 at 02 45 14" src="https://user-images.githubusercontent.com/118350020/220499605-f71ec4e4-9667-4f8b-9349-60c1646fa98a.png">
+
+
+ 
+ 
+
 
 
 
