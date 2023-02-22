@@ -453,9 +453,97 @@ As shown in the diagram below
 <img width="907" alt="Screenshot 2023-02-22 at 00 10 44" src="https://user-images.githubusercontent.com/118350020/220479996-659d4e7e-76ee-4078-8928-8ab1b4d2ec84.png">
 
 so now we are going to run the below command on all the 3 webserver
+
 git clone https://github.com/darey-io/tooling.git
 
 as shown in the below diagram
 
 <img width="911" alt="Screenshot 2023-02-22 at 00 16 04" src="https://user-images.githubusercontent.com/118350020/220480451-693bd31a-c31f-4bb3-ad46-4e39ff2af32a.png">
+
+so now let us run ls command as shown in the below diagram
+
+<img width="910" alt="Screenshot 2023-02-22 at 00 39 20" src="https://user-images.githubusercontent.com/118350020/220483513-9023fc59-293c-46c7-a7cb-9a95300b9999.png">
+
+
+now let us run ls tooling as shown in the below diagram
+
+<img width="908" alt="Screenshot 2023-02-22 at 00 41 26" src="https://user-images.githubusercontent.com/118350020/220483819-457ceba5-3a82-45e7-ac94-b752345bb51d.png">
+
+so let us run this command cd tooling and also ls, as seen in the below diagram
+
+<img width="912" alt="Screenshot 2023-02-22 at 00 44 06" src="https://user-images.githubusercontent.com/118350020/220484245-990b4ae2-dbdc-4d2e-aa7d-ddb28afe9b2a.png">
+
+Next step is to Deploy the tooling website’s code to the Webserver. 
+And Ensure that the html folder from the repository is deployed to /var/www/html
+
+so we are going to run this command below on all the 3 webserver
+
+ls /var/www
+As shown in the below diagram, we have the html inside the tooling
+
+<img width="908" alt="Screenshot 2023-02-22 at 00 49 36" src="https://user-images.githubusercontent.com/118350020/220485074-e7163948-1da0-4099-8344-2d66a5d5497b.png">
+
+so now, let us run this command below on all the 3 webserver
+
+sudo cp -R html/. /var/www/html as shown in the below diagram
+
+<img width="912" alt="Screenshot 2023-02-22 at 00 55 54" src="https://user-images.githubusercontent.com/118350020/220485736-c113b126-fe7a-49d7-af24-b356fa1653da.png">
+
+so am going to ruun this command below
+ls /var/www/html 
+
+As shown in the below diagram
+
+<img width="910" alt="Screenshot 2023-02-22 at 01 20 31" src="https://user-images.githubusercontent.com/118350020/220488788-81412de7-865a-4a9e-9566-95717ac0fde0.png">
+
+now let us go into our  on EC2 instant to open TCP port 80 on all the Web Server
+
+let us run this command
+
+cd ..
+
+now let us run the command below on all the 3 webserver
+
+sudo setenforce 0
+
+as shown in the diagram below
+
+<img width="908" alt="Screenshot 2023-02-22 at 01 42 11" src="https://user-images.githubusercontent.com/118350020/220491304-e77e0cca-eb04-4f04-b360-9a4b9c139e03.png">
+ 
+ Next step is to run the command below and go into the file as it will be shown in the diagram below
+ 
+ sudo vi /etc/sysconfig/selinux
+ 
+ 
+ <img width="906" alt="Screenshot 2023-02-22 at 01 47 40" src="https://user-images.githubusercontent.com/118350020/220492111-bc17f916-6750-4ea3-ad10-85f64098767a.png">
+
+so the highlighted part will be changed to disabled as shown in the below diagram
+
+<img width="907" alt="Screenshot 2023-02-22 at 01 51 04" src="https://user-images.githubusercontent.com/118350020/220492419-f7391950-a509-403f-9040-dbc946c2e8ff.png">
+
+so now let us start our httpd by running the below command
+sudo systemctl start httpd
+sudo systemctl status httpd
+
+as shown in the below diagram, its active
+
+<img width="912" alt="Screenshot 2023-02-22 at 01 56 46" src="https://user-images.githubusercontent.com/118350020/220493254-e04b4486-edb4-434f-ad8e-2ddb8981d53c.png">
+
+now let us copy the public IP on the webserver and paste it on our web search to see the outcome as shown in the below diagram
+
+<img width="1091" alt="Screenshot 2023-02-22 at 02 09 28" src="https://user-images.githubusercontent.com/118350020/220494881-58385ff1-60ac-42fb-aa09-75aee502f6c5.png">
+
+
+So next step is to Update the website’s configuration to connect to the database (in /var/www/html/functions.php file).
+so we are running this command below
+
+sudo vi /var/www/html/functions.php  as shown in the below diagram
+
+
+
+
+
+ 
+
+
 
