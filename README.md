@@ -561,8 +561,98 @@ as shown in the below diagram
 
 <img width="911" alt="Screenshot 2023-02-22 at 02 45 14" src="https://user-images.githubusercontent.com/118350020/220499605-f71ec4e4-9667-4f8b-9349-60c1646fa98a.png">
 
+on our DBserver, we need to ruun this command below
+sudo vi /etc/mysql/mysql.conf.d/mysqld.cnf
 
+as shown in the below diagram 
+
+
+<img width="906" alt="Screenshot 2023-02-22 at 03 30 30" src="https://user-images.githubusercontent.com/118350020/220505816-cc12d2bf-abe4-44d8-899f-bd81cd6eebb1.png">
+
+so we have to changed this bind-address            = 127.0.0.1 
+                           mysqlx-bind-address     = 127.0.0.1
+                           
+                           to
+                           
+                           bind-address            = 0.0.0.0
+                           mysqlx-bind-address     = 0.0.0.0
+
+as shown in the diagram below
+
+<img width="909" alt="Screenshot 2023-02-22 at 03 35 55" src="https://user-images.githubusercontent.com/118350020/220506683-5494b02c-75e6-4e76-b027-7d0a45079545.png">
+
+so we need to restart our mysql on the DB server using the below command
+sudo systemctl restart mysql
+sudo systemctl status mysql
+
+<img width="918" alt="Screenshot 2023-02-22 at 03 39 37" src="https://user-images.githubusercontent.com/118350020/220507260-0f64e04a-3432-4139-bda2-d9f0f67e197e.png">
+
+so now let us go back to our webserver to run this below command
+mysql -h 172.31.15.65 -u webaccess -p tooling < tooling-db.sql
+
+<img width="905" alt="Screenshot 2023-02-22 at 03 57 15" src="https://user-images.githubusercontent.com/118350020/220510096-bb65be24-b371-4230-bc14-8bf7bfd7409f.png">
+  so now lets go back to our DB server and run the below commnad
+  sudo mysql
+  
+  as shown in the below. diagram
+  
+  <img width="1440" alt="Screenshot 2023-02-22 at 04 00 55" src="https://user-images.githubusercontent.com/118350020/220510598-7873decd-2a30-4af6-8e25-98dc3c0fbc56.png">
+  
+so let us this command below
+
+show databases;
+
+<img width="911" alt="Screenshot 2023-02-22 at 04 04 30" src="https://user-images.githubusercontent.com/118350020/220510909-8e364d7c-a1f7-4bb8-a140-27b350a61d2e.png">
+
+use tooling;
+show tables;
+select * from users;
+as shown in the below diagram
+
+<img width="908" alt="Screenshot 2023-02-22 at 04 12 22" src="https://user-images.githubusercontent.com/118350020/220511963-e63a417d-1a66-44e0-bb13-d008a8f33fff.png">
  
+ if we run this command below on our webserve, we are still going to see all the content in our mysql DB server 
+ 
+ sudo vi tooling-db.sql 
+ as youu can see from the below diagram
+ 
+ <img width="912" alt="Screenshot 2023-02-22 at 04 18 15" src="https://user-images.githubusercontent.com/118350020/220512776-ba3e2424-37f4-4a1d-84be-b6fd837ae29b.png">
+
+now let uus run the below command on our webserver to find our test page
+
+ls /etc/httpd/conf.d/welcome.conf
+
+as shown in the diagram below
+
+<img width="912" alt="Screenshot 2023-02-22 at 04 39 08" src="https://user-images.githubusercontent.com/118350020/220515533-3906fb4f-8e77-4171-a57e-f8bf9817c3e0.png">
+
+if i should run this below command on our webserver, it will show the below diagram as well
+
+vi /etc/httpd/conf.d/welcome.conf
+
+<img width="979" alt="Screenshot 2023-02-22 at 04 48 10" src="https://user-images.githubusercontent.com/118350020/220516910-0d1634de-22b3-46fe-b6ea-c503c61f99d6.png">
+
+now let uus rename this vi /etc/httpd/conf.d/welcome.conf to this 
+
+sudo mv /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/welcome.backup
+sudo systemctl restart httpd
+sudo systemctl status httpd
+
+<img width="980" alt="Screenshot 2023-02-22 at 04 58 58" src="https://user-images.githubusercontent.com/118350020/220518417-aaf2888a-df83-4fce-8c11-7afd87323bb9.png">
+
+
+ now let us launch back out web
+ 
+ <img width="1091" alt="Screenshot 2023-02-22 at 02 09 28" src="https://user-images.githubusercontent.com/118350020/220519537-77cb8654-2cb2-40bc-825b-fbb29eac7ab0.png">
+
+now let me login using my credential
+
+<img width="1440" alt="Screenshot 2023-02-22 at 05 07 06" src="https://user-images.githubusercontent.com/118350020/220519624-9a56ada0-9825-49c1-9760-39a635a65efa.png">
+
+<img width="1440" alt="Screenshot 2023-02-22 at 05 07 25" src="https://user-images.githubusercontent.com/118350020/220519672-8609fbc1-fc80-4ac6-b286-5f383ea6ca21.png">
+
+
+end of project 7
  
 
 
